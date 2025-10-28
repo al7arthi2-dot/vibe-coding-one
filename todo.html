@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tomorrow's To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f8fb;
+      color: #1d1f27;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 2rem 2.5rem;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      color: #60647a;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eceff4;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: #4c6ef5;
+    }
+
+    label {
+      flex: 1;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Tomorrow's To-Do List</h1>
+    <p id="tomorrow-date"></p>
+    <ul>
+      <li>
+        <input type="checkbox" id="meeting" />
+        <label for="meeting">Meeting with the team</label>
+      </li>
+      <li>
+        <input type="checkbox" id="workshop" />
+        <label for="workshop">Assigning new date for the workshop</label>
+      </li>
+      <li>
+        <input type="checkbox" id="beach" />
+        <label for="beach">Going to the beach</label>
+      </li>
+    </ul>
+  </main>
+
+  <script>
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    document.getElementById('tomorrow-date').textContent = `Scheduled for ${formatter.format(tomorrow)}`;
+  </script>
+</body>
+</html>
