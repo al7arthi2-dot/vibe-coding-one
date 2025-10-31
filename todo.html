@@ -3,102 +3,532 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tomorrow's To-Do List</title>
+  <title>Tech Listening Lab</title>
   <style>
+    :root {
+      color-scheme: light dark;
+      --bg: linear-gradient(135deg, #0b1a3a, #111827 55%, #182848);
+      --card-bg: rgba(17, 24, 39, 0.78);
+      --text-primary: #f1f5ff;
+      --text-secondary: #c1c9ff;
+      --accent: #38bdf8;
+      --accent-strong: #6366f1;
+      --success: #34d399;
+      --error: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f8fb;
-      color: #1d1f27;
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Poppins", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
+      padding: 2.5rem 1rem 4rem;
+    }
+
+    .wrapper {
+      width: min(1100px, 100%);
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    header {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      box-shadow: 0 25px 60px rgba(6, 13, 31, 0.45);
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      inset: -50% 20% 30% -40%;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.32), transparent 55%);
+      pointer-events: none;
+    }
+
+    header h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(2rem, 4vw, 2.9rem);
+      letter-spacing: 0.04em;
+    }
+
+    header p {
       margin: 0;
-      padding: 2rem;
+      max-width: 620px;
+      font-size: 1.05rem;
+      color: var(--text-secondary);
     }
 
-    .container {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      padding: 2rem 2.5rem;
-      max-width: 480px;
-      width: 100%;
+    .status-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      align-items: center;
+      margin-top: 1.75rem;
+      z-index: 1;
+      position: relative;
     }
 
-    h1 {
-      font-size: 1.75rem;
+    .bar-wrapper {
+      flex: 1;
+      min-width: 260px;
+      background: rgba(37, 58, 102, 0.45);
+      border-radius: 999px;
+      padding: 0.35rem;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+
+    .progress-bar {
+      height: 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .score-display {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    section.lesson-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: clamp(1.5rem, 3vw, 2.2rem);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 40px rgba(6, 13, 31, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    section.lesson-card::before {
+      content: "";
+      position: absolute;
+      inset: auto -40% -60% 50%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18), transparent 70%);
+      transform: translate(-40%, 0);
+      pointer-events: none;
+    }
+
+    .lesson-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .lesson-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .lesson-header button {
+      align-self: flex-start;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--text-primary);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 999px;
+      padding: 0.5rem 1.25rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .lesson-header button:hover,
+    .lesson-header button:focus {
+      transform: translateY(-1px);
+      background: rgba(99, 102, 241, 0.25);
+      outline: none;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
       margin-bottom: 0.75rem;
     }
 
-    p {
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-      color: #60647a;
+    .options {
+      display: grid;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    li {
-      display: flex;
+    label.option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.65rem;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #eceff4;
-    }
-
-    li:last-child {
-      border-bottom: none;
-    }
-
-    input[type="checkbox"] {
-      width: 1.1rem;
-      height: 1.1rem;
-      accent-color: #4c6ef5;
-    }
-
-    label {
-      flex: 1;
+      padding: 0.6rem 0.75rem;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid transparent;
       cursor: pointer;
+      transition: border 0.2s ease, transform 0.2s ease;
+    }
+
+    label.option:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
+    }
+
+    label.option input {
+      accent-color: var(--accent-strong);
+      width: 18px;
+      height: 18px;
+    }
+
+    .feedback {
+      font-size: 0.95rem;
+      min-height: 1.4rem;
+      font-weight: 500;
+    }
+
+    .feedback.correct {
+      color: var(--success);
+    }
+
+    .feedback.incorrect {
+      color: var(--error);
+    }
+
+    .check-btn {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.35));
+      color: var(--text-primary);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+      border-radius: 999px;
+      padding: 0.55rem 1.4rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .check-btn:hover,
+    .check-btn:focus {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+      outline: none;
+    }
+
+    .final-score {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 1.75rem;
+      text-align: center;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 12px 40px rgba(6, 13, 31, 0.4);
+    }
+
+    .final-score h3 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .final-score p {
+      color: var(--text-secondary);
+      margin: 0.5rem 0 0;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 1.5rem 1rem 3rem;
+      }
+
+      header,
+      section.lesson-card {
+        padding: 1.75rem;
+      }
+
+      .status-board {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .score-display {
+        text-align: center;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="container">
-    <h1>Tomorrow's To-Do List</h1>
-    <p id="tomorrow-date"></p>
-    <ul>
-      <li>
-        <input type="checkbox" id="meeting" />
-        <label for="meeting">Meeting with the team</label>
-      </li>
-      <li>
-        <input type="checkbox" id="workshop" />
-        <label for="workshop">Assigning new date for the workshop</label>
-      </li>
-      <li>
-        <input type="checkbox" id="beach" />
-        <label for="beach">Going to the beach</label>
-      </li>
-    </ul>
-  </main>
+  <div class="wrapper">
+    <header>
+      <h1>Tech Listening Lab</h1>
+      <p>
+        Welcome, innovators! Listen to each short technology story, answer the question, and fill your energy bar.
+        Practice active listening skills, learn new tech words, and try to score 10 out of 10. Hit the neon play button
+        to hear each script.
+      </p>
+      <div class="status-board">
+        <div class="bar-wrapper" aria-label="Progress toward the Tech Hero badge">
+          <div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        </div>
+        <div class="score-display" id="scoreDisplay">Score: 0 / 10</div>
+      </div>
+    </header>
+
+    <main id="lessons"></main>
+
+    <div class="final-score" id="finalScore" aria-live="polite"></div>
+  </div>
 
   <script>
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const lessonsData = [
+      {
+        id: 1,
+        type: "tf",
+        script:
+          "Every morning, Aya checks her smart watch to see how much she slept. Today it shows a rainbow chart of her heartbeats and a message saying, 'Great recovery!'",
+        question: "Aya's smart watch shows a colorful chart about her heartbeat.",
+        answer: "true"
+      },
+      {
+        id: 2,
+        type: "tf",
+        script:
+          "Marcus is building a robot that can water the garden. He codes the robot to stop watering when the soil is wet. The robot blinks blue lights when it's done.",
+        question: "Marcus makes his robot blink red lights when the soil is wet.",
+        answer: "false"
+      },
+      {
+        id: 3,
+        type: "tf",
+        script:
+          "Lina listens to a podcast about space drones that can fix satellites. The host explains that the drones are controlled by people on Earth using joysticks.",
+        question: "The space drones are controlled by humans using joysticks from Earth.",
+        answer: "true"
+      },
+      {
+        id: 4,
+        type: "tf",
+        script:
+          "Today in class, Mr. Chen shows a 3D printer that makes a key for the library door. The printer melts thin strings of plastic to create the shape.",
+        question: "Mr. Chen's 3D printer uses metal blocks to make the key.",
+        answer: "false"
+      },
+      {
+        id: 5,
+        type: "tf",
+        script:
+          "Sofia uses a translation app to speak with her cousin in Brazil. She talks into the phone, and the app instantly says her words in Portuguese.",
+        question: "Sofia's app repeats her words in Portuguese right away.",
+        answer: "true"
+      },
+      {
+        id: 6,
+        type: "mc",
+        script:
+          "A class of sixth graders is testing small solar cars. When the cars are in the shade, they slow down. When they are under a bright lamp, they race forward.",
+        question: "What makes the solar cars go faster?",
+        options: [
+          { value: "a", text: "Driving in the shade" },
+          { value: "b", text: "Being under a bright lamp" },
+          { value: "c", text: "Getting sprayed with water" }
+        ],
+        answer: "b"
+      },
+      {
+        id: 7,
+        type: "mc",
+        script:
+          "Nora is on a video call with a scientist in another country. They are looking at a hologram of a volcano and moving it with their hands in the air.",
+        question: "What are Nora and the scientist doing with the hologram?",
+        options: [
+          { value: "a", text: "Taking it apart with tools" },
+          { value: "b", text: "Moving it with hand gestures" },
+          { value: "c", text: "Hiding it behind a screen" }
+        ],
+        answer: "b"
+      },
+      {
+        id: 8,
+        type: "mc",
+        script:
+          "Diego enters a virtual reality lab. He puts on special gloves that let him feel virtual objects. When he touches a digital snowball, the gloves buzz softly.",
+        question: "What happens when Diego touches the virtual snowball?",
+        options: [
+          { value: "a", text: "The gloves buzz softly" },
+          { value: "b", text: "The snowball melts in his hand" },
+          { value: "c", text: "He sees nothing on the screen" }
+        ],
+        answer: "a"
+      },
+      {
+        id: 9,
+        type: "mc",
+        script:
+          "In the school makerspace, twins Jay and Jada fly a mini drone to film the school garden. They use a tablet to steer it and record a video for the science fair.",
+        question: "Why are Jay and Jada flying the mini drone?",
+        options: [
+          { value: "a", text: "To record a science fair video" },
+          { value: "b", text: "To water the plants" },
+          { value: "c", text: "To deliver a package" }
+        ],
+        answer: "a"
+      },
+      {
+        id: 10,
+        type: "mc",
+        script:
+          "Mila downloads an app that teaches coding through music. When she writes a correct line of code, the app plays a short guitar riff and unlocks a new level.",
+        question: "What reward does Mila get for writing correct code?",
+        options: [
+          { value: "a", text: "A new background color" },
+          { value: "b", text: "A short guitar riff and a new level" },
+          { value: "c", text: "A message telling her to stop" }
+        ],
+        answer: "b"
+      }
+    ];
 
-    const formatter = new Intl.DateTimeFormat(undefined, {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
+    const lessonsContainer = document.getElementById("lessons");
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const progressBar = document.getElementById("progressBar");
+    const finalScore = document.getElementById("finalScore");
+    const synth = window.speechSynthesis;
+    const voices = () => synth.getVoices().filter((voice) => voice.lang.startsWith("en"));
+
+    let totalScore = 0;
+    let answeredCount = 0;
+
+    function speakScript(text) {
+      if (synth.speaking) {
+        synth.cancel();
+      }
+      const utter = new SpeechSynthesisUtterance(text);
+      const availableVoices = voices();
+      if (availableVoices.length) {
+        const preferred = availableVoices.find((v) => /female/i.test(v.name)) || availableVoices[0];
+        utter.voice = preferred;
+      }
+      utter.pitch = 1;
+      utter.rate = 0.95;
+      synth.speak(utter);
+    }
+
+    function updateScoreDisplay() {
+      scoreDisplay.textContent = `Score: ${totalScore} / ${lessonsData.length}`;
+      const percentage = (totalScore / lessonsData.length) * 100;
+      progressBar.style.width = `${percentage}%`;
+      progressBar.setAttribute("aria-valuenow", percentage.toFixed(0));
+    }
+
+    function announceFinalScore() {
+      if (answeredCount === lessonsData.length) {
+        const message = totalScore >= 8
+          ? "Amazing! You earned the Tech Hero badge!"
+          : totalScore >= 5
+            ? "Great effort! Keep practicing to reach hero status."
+            : "Keep listening and try again to level up!";
+        finalScore.innerHTML = `<h3>Your Listening Score: ${totalScore} / ${lessonsData.length}</h3><p>${message}</p>`;
+      }
+    }
+
+    lessonsData.forEach((lesson) => {
+      const section = document.createElement("section");
+      section.className = "lesson-card";
+      section.innerHTML = `
+        <div class="lesson-header">
+          <h2>Listening ${lesson.id.toString().padStart(2, "0")}</h2>
+          <button type="button" class="play-btn" data-id="${lesson.id}">▶ Play Script</button>
+        </div>
+        <div class="question-text" id="question-${lesson.id}">${lesson.question}</div>
+        <div class="options" role="radiogroup" aria-labelledby="question-${lesson.id}">
+          ${lesson.type === "tf"
+            ? [
+                { value: "true", text: "True" },
+                { value: "false", text: "False" }
+              ]
+                .map(
+                  (opt) => `
+                    <label class="option">
+                      <input type="radio" name="q${lesson.id}" value="${opt.value}" />
+                      <span>${opt.text}</span>
+                    </label>
+                  `
+                )
+                .join("")
+            : lesson.options
+                .map(
+                  (opt) => `
+                    <label class="option">
+                      <input type="radio" name="q${lesson.id}" value="${opt.value}" />
+                      <span>${opt.text}</span>
+                    </label>
+                  `
+                )
+                .join("")}
+        </div>
+        <button class="check-btn" data-check="${lesson.id}">Check Answer</button>
+        <div class="feedback" id="feedback-${lesson.id}" aria-live="polite"></div>
+      `;
+      lessonsContainer.appendChild(section);
     });
 
-    document.getElementById('tomorrow-date').textContent = `Scheduled for ${formatter.format(tomorrow)}`;
+    lessonsContainer.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target.matches("button.play-btn")) {
+        const id = Number(target.dataset.id);
+        const lesson = lessonsData.find((item) => item.id === id);
+        if (lesson) {
+          speakScript(lesson.script);
+        }
+      }
+
+      if (target.matches("button[data-check]")) {
+        const id = Number(target.dataset.check);
+        const lesson = lessonsData.find((item) => item.id === id);
+        const feedbackEl = document.getElementById(`feedback-${id}`);
+        const selected = lessonsContainer.querySelector(`input[name="q${id}"]:checked`);
+
+        if (!lesson || !feedbackEl) return;
+
+        if (!selected) {
+          feedbackEl.textContent = "Choose an answer before checking.";
+          feedbackEl.className = "feedback";
+          return;
+        }
+
+        if (target.disabled) {
+          feedbackEl.textContent = "This question is already checked. Great job staying curious!";
+          feedbackEl.className = "feedback";
+          return;
+        }
+
+        answeredCount += 1;
+
+        if (selected.value === lesson.answer) {
+          totalScore += 1;
+          feedbackEl.textContent = "Correct! You decoded the tech clue.";
+          feedbackEl.className = "feedback correct";
+        } else {
+          const correction = lesson.type === "tf" ? (lesson.answer === "true" ? "It was true." : "It was false.") : "Listen again to find the key detail.";
+          feedbackEl.textContent = `Not yet. ${correction}`;
+          feedbackEl.className = "feedback incorrect";
+        }
+
+        target.disabled = true;
+        updateScoreDisplay();
+        announceFinalScore();
+      }
+    });
+
+    updateScoreDisplay();
   </script>
 </body>
 </html>
